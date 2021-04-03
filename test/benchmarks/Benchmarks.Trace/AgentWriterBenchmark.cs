@@ -16,7 +16,7 @@ namespace Benchmarks.Trace
     {
         private const int SpanCount = 1000;
 
-        private static readonly IAgentWriter AgentWriter;
+        private static readonly ITraceWriter AgentWriter;
         private static readonly Span[] Spans;
         private static readonly Span[] EnrichedSpans;
 
@@ -29,7 +29,7 @@ namespace Benchmarks.Trace
 
             var api = new Api(settings.AgentUri, new FakeApiRequestFactory(), statsd: null);
 
-            AgentWriter = new AgentWriter(api, statsd: null, automaticFlush: false);
+            AgentWriter = new AgentWriter(api, new NullMetrics(), automaticFlush: false);
 
             Spans = new Span[SpanCount];
             EnrichedSpans = new Span[SpanCount];
