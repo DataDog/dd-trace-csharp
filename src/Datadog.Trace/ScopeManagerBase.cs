@@ -31,14 +31,13 @@ namespace Datadog.Trace
         {
             var newParent = Active;
             var scope = new Scope(newParent, span, this, finishOnClose);
-            var scopeOpenedArgs = new SpanEventArgs(span);
 
             if (newParent == null)
             {
-                TraceStarted?.Invoke(this, scopeOpenedArgs);
+                TraceStarted?.Invoke(this, new SpanEventArgs(span));
             }
 
-            SpanOpened?.Invoke(this, scopeOpenedArgs);
+            SpanOpened?.Invoke(this, new SpanEventArgs(span));
 
             Active = scope;
 
@@ -47,7 +46,7 @@ namespace Datadog.Trace
                 SpanDeactivated?.Invoke(this, new SpanEventArgs(newParent.Span));
             }
 
-            SpanActivated?.Invoke(this, scopeOpenedArgs);
+            SpanActivated?.Invoke(this, new SpanEventArgs(span));
 
             return scope;
         }

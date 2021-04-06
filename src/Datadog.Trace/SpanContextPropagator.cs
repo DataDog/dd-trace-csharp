@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Datadog.Trace.Headers;
 using Datadog.Trace.Logging;
 
@@ -36,12 +37,13 @@ namespace Datadog.Trace
         /// <param name="context">A <see cref="SpanContext"/> value that will be propagated into <paramref name="headers"/>.</param>
         /// <param name="headers">A <see cref="IHeadersCollection"/> to add new headers to.</param>
         /// <typeparam name="T">Type of header collection</typeparam>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Inject<T>(SpanContext context, T headers)
             where T : IHeadersCollection
         {
-            if (context == null) { throw new ArgumentNullException(nameof(context)); }
+            if (context == null) { ThrowHelper.ArgumentNullException(nameof(context)); }
 
-            if (headers == null) { throw new ArgumentNullException(nameof(headers)); }
+            if (headers == null) { ThrowHelper.ArgumentNullException(nameof(headers)); }
 
             // lock sampling priority when span propagates.
             context.TraceContext?.LockSamplingPriority();
@@ -70,13 +72,14 @@ namespace Datadog.Trace
         /// <param name="carrier">The headers to add to.</param>
         /// <param name="setter">The action that can set a header in the carrier.</param>
         /// <typeparam name="T">Type of header collection</typeparam>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Inject<T>(SpanContext context, T carrier, Action<T, string, string> setter)
         {
-            if (context == null) { throw new ArgumentNullException(nameof(context)); }
+            if (context == null) { ThrowHelper.ArgumentNullException(nameof(context)); }
 
-            if (carrier == null) { throw new ArgumentNullException(nameof(carrier)); }
+            if (carrier == null) { ThrowHelper.ArgumentNullException(nameof(carrier)); }
 
-            if (setter == null) { throw new ArgumentNullException(nameof(setter)); }
+            if (setter == null) { ThrowHelper.ArgumentNullException(nameof(setter)); }
 
             // lock sampling priority when span propagates.
             context.TraceContext?.LockSamplingPriority();
@@ -101,13 +104,11 @@ namespace Datadog.Trace
         /// <param name="headers">The headers that contain the values to be extracted.</param>
         /// <typeparam name="T">Type of header collection</typeparam>
         /// <returns>A new <see cref="SpanContext"/> that contains the values obtained from <paramref name="headers"/>.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SpanContext Extract<T>(T headers)
             where T : IHeadersCollection
         {
-            if (headers == null)
-            {
-                throw new ArgumentNullException(nameof(headers));
-            }
+            if (headers == null) { ThrowHelper.ArgumentNullException(nameof(headers)); }
 
             var traceId = ParseUInt64(headers, HttpHeaderNames.TraceId);
 
@@ -131,11 +132,12 @@ namespace Datadog.Trace
         /// <param name="getter">The function that can extract a list of values for a given header name.</param>
         /// <typeparam name="T">Type of header collection</typeparam>
         /// <returns>A new <see cref="SpanContext"/> that contains the values obtained from <paramref name="carrier"/>.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SpanContext Extract<T>(T carrier, Func<T, string, IEnumerable<string>> getter)
         {
-            if (carrier == null) { throw new ArgumentNullException(nameof(carrier)); }
+            if (carrier == null) { ThrowHelper.ArgumentNullException(nameof(carrier)); }
 
-            if (getter == null) { throw new ArgumentNullException(nameof(getter)); }
+            if (getter == null) { ThrowHelper.ArgumentNullException(nameof(getter)); }
 
             var traceId = ParseUInt64(carrier, getter, HttpHeaderNames.TraceId);
 
@@ -152,6 +154,7 @@ namespace Datadog.Trace
             return new SpanContext(traceId, parentId, samplingPriority, null, origin);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<KeyValuePair<string, string>> ExtractHeaderTags<T>(T headers, IEnumerable<KeyValuePair<string, string>> headerToTagMap)
             where T : IHeadersCollection
         {
@@ -166,6 +169,7 @@ namespace Datadog.Trace
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong ParseUInt64<T>(T headers, string headerName)
             where T : IHeadersCollection
         {
@@ -173,14 +177,30 @@ namespace Datadog.Trace
 
             bool hasValue = false;
 
-            foreach (string headerValue in headerValues)
+            if (headerValues is string[] headerValuesArray)
             {
-                if (ulong.TryParse(headerValue, NumberStyles, InvariantCulture, out var result))
+                for (var i = 0; i < headerValuesArray.Length; i++)
                 {
-                    return result;
-                }
+                    var headerValue = headerValuesArray[i];
+                    if (ulong.TryParse(headerValue, NumberStyles, InvariantCulture, out var result))
+                    {
+                        return result;
+                    }
 
-                hasValue = true;
+                    hasValue = true;
+                }
+            }
+            else
+            {
+                foreach (string headerValue in headerValues)
+                {
+                    if (ulong.TryParse(headerValue, NumberStyles, InvariantCulture, out var result))
+                    {
+                        return result;
+                    }
+
+                    hasValue = true;
+                }
             }
 
             if (hasValue)
@@ -191,6 +211,7 @@ namespace Datadog.Trace
             return 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong ParseUInt64<T>(T carrier, Func<T, string, IEnumerable<string>> getter, string headerName)
         {
             var headerValues = getter(carrier, headerName);
@@ -215,6 +236,7 @@ namespace Datadog.Trace
             return 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static SamplingPriority? ParseSamplingPriority<T>(T headers, string headerName)
             where T : IHeadersCollection
         {
@@ -246,6 +268,7 @@ namespace Datadog.Trace
             return default;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static SamplingPriority? ParseSamplingPriority<T>(T carrier, Func<T, string, IEnumerable<string>> getter, string headerName)
         {
             var headerValues = getter(carrier, headerName);
@@ -276,9 +299,25 @@ namespace Datadog.Trace
             return default;
         }
 
-        private static string ParseString(IHeadersCollection headers, string headerName)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static string ParseString<T>(T headers, string headerName)
+            where T : IHeadersCollection
         {
             var headerValues = headers.GetValues(headerName);
+
+            if (headerValues is string[] headerValuesArray)
+            {
+                for (var i = 0; i < headerValuesArray.Length; i++)
+                {
+                    var headerValue = headerValuesArray[i];
+                    if (!string.IsNullOrEmpty(headerValue))
+                    {
+                        return headerValue;
+                    }
+                }
+
+                return null;
+            }
 
             foreach (string headerValue in headerValues)
             {
@@ -291,6 +330,7 @@ namespace Datadog.Trace
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string ParseString<T>(T carrier, Func<T, string, IEnumerable<string>> getter, string headerName)
         {
             var headerValues = getter(carrier, headerName);

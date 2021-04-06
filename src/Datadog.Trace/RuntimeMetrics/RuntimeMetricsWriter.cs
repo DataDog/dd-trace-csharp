@@ -35,7 +35,7 @@ namespace Datadog.Trace.RuntimeMetrics
         {
             _delay = delay;
             _statsd = statsd;
-            _timer = new Timer(_ => PushEvents(), null, delay, delay);
+            _timer = new Timer(state => ((RuntimeMetricsWriter)state).PushEvents(), this, delay, delay);
 
             try
             {
