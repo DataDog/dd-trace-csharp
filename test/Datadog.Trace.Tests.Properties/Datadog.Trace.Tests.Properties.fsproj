@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <!-- override to remove net452 -->
+      <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net461;netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+      <TargetFrameworks Condition="$(MSBuildVersion) &gt;= 16.8.0 AND !$(TargetFrameworks.Contains('net5.0'))">$(TargetFrameworks);net5.0</TargetFrameworks>
+
+      <IsPackable>false</IsPackable>
+      <GenerateProgramFile>false</GenerateProgramFile>
+      <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="AgentWriterTests.fs" />
+    <Compile Include="IntegrationVersionRangeTests.fs" />
+    <Compile Include="FakeProgram.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FsCheck.Xunit" Version="3.0.0-alpha5" />
+    <ProjectReference Include="..\..\src\Datadog.Trace\Datadog.Trace.csproj" />
+    <ProjectReference Include="..\..\src\Datadog.Trace.ClrProfiler.Managed\Datadog.Trace.ClrProfiler.Managed.csproj" />
+  </ItemGroup>
+
+</Project>
