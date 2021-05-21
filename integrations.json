@@ -870,6 +870,7 @@
           "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.CosmosDb.ContainerQueryIteratorsIntegrations",
           "action": "CallTargetModification"
         }
+<<<<<<< HEAD
       },
       {
         "caller": {},
@@ -896,6 +897,14 @@
           "action": "CallTargetModification"
         }
       },
+=======
+      }
+    ]
+  },
+  {
+    "name": "AspNetCore",
+    "method_replacements": [
+>>>>>>> 6b94461a (Adding tests and fixing integrations.json)
       {
         "caller": {},
         "target": {
@@ -920,6 +929,7 @@
           "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.CosmosDb.DatabaseQueryIteratorsIntegrations",
           "action": "CallTargetModification"
         }
+<<<<<<< HEAD
       },
       {
         "caller": {},
@@ -1020,6 +1030,8 @@
           "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.CosmosDb.DatabaseQueryIteratorsIntegrations",
           "action": "CallTargetModification"
         }
+=======
+>>>>>>> 6b94461a (Adding tests and fixing integrations.json)
       }
     ]
   },
@@ -4628,6 +4640,7 @@
     ]
   },
   {
+<<<<<<< HEAD
     "name": "Wcf",
     "method_replacements": [
       {
@@ -4657,6 +4670,8 @@
     ]
   },
   {
+=======
+>>>>>>> 6b94461a (Adding tests and fixing integrations.json)
     "name": "WebRequest",
     "method_replacements": [
       {
@@ -4995,6 +5010,7 @@
     ]
   },
   {
+<<<<<<< HEAD
     "name": "AspNet",
     "method_replacements": [
       {
@@ -5118,6 +5134,8 @@
     ]
   },
   {
+=======
+>>>>>>> 6b94461a (Adding tests and fixing integrations.json)
     "name": "DbCommand",
     "method_replacements": [
       {
@@ -7628,6 +7646,7 @@
     ]
   },
   {
+<<<<<<< HEAD
     "name": "Wcf",
     "method_replacements": [
       {
@@ -7659,6 +7678,8 @@
     ]
   },
   {
+=======
+>>>>>>> 6b94461a (Adding tests and fixing integrations.json)
     "name": "WebRequest",
     "method_replacements": [
       {
