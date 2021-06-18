@@ -45,11 +45,16 @@ namespace Sandbox.ManualTracing
 
         public static void RunWebRequestSync()
         {
+            var scope = Tracer.Instance.StartActive("woot");
+            var span = Tracer.Instance.StartSpan("woot");
+
             for (int i = 0; i < 5; i++)
             {
                 EmitCustomSpans();
                 Thread.Sleep(2000);
             }
+
+            Console.WriteLine(scope.Span.TraceId);
         }
 
         private static void EmitCustomSpans()
