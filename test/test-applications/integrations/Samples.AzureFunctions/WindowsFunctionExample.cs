@@ -48,18 +48,18 @@ namespace Samples.AzureFunctions
             return methods;
         }
 
-        [FunctionName("TimerTrigger")]
-        public static async Task Run([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
-        {
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            var stackTrace = GetUsefulStack();
-            log.LogInformation($"Stack trace: {stackTrace}");
-            LogEnvironmentVariables(log);
-            await WriteJokeToConsole();
-        }
+        // [FunctionName("TimerTrigger")]
+        // public static async Task TimerTriggerFunction([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
+        // {
+        //     log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+        //     var stackTrace = GetUsefulStack();
+        //     log.LogInformation($"Stack trace: {stackTrace}");
+        //     LogEnvironmentVariables(log);
+        //     await WriteJokeToConsole();
+        // }
 
         [FunctionName("HttpTrigger")]
-        public static async Task<IActionResult> HttpTrigger(
+        public static async Task<IActionResult> HttpTriggerFunction(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -76,6 +76,33 @@ namespace Samples.AzureFunctions
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
             await WriteJokeToConsole();
+
+            return new OkObjectResult(responseMessage);
+        }
+
+
+        [FunctionName("HttpTriggerSlow")]
+        public static async Task<IActionResult> HttpTriggerSlowFunction(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "slow")] HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation("C# HTTP trigger function processed a request.");
+
+            await Task.Delay(100);
+
+            string name = req.Query["name"];
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            name = name ?? data?.name;
+
+            string responseMessage = string.IsNullOrEmpty(name)
+                                         ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+                                         : $"Hello, {name}. This HTTP triggered function executed successfully.";
+
+            await WriteJokeToConsole();
+
+            await Task.Delay(100);
 
             return new OkObjectResult(responseMessage);
         }

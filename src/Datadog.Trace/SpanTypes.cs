@@ -66,5 +66,10 @@ namespace Datadog.Trace
         /// The span type for msbuild integration.
         /// </summary>
         public const string Build = "build";
+
+        /// <summary>
+        /// The span type for azure function integration.
+        /// </summary>
+        public const string AzureFunction = "azure-func";
     }
 }

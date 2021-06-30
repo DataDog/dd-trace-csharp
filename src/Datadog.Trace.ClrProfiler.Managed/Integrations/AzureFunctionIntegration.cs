@@ -17,7 +17,7 @@ namespace Datadog.Trace.ClrProfiler.Integrations
     /// </summary>
     public static class AzureFunctionIntegration
     {
-        private const string OperationName = "azure-function.invoke";
+        private const string OperationName = "azure.function";
         private const string MinimumVersion = "3";
         private const string MaximumVersion = "3";
 

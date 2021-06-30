@@ -648,12 +648,12 @@
         "caller": {},
         "target": {
           "assembly": "Microsoft.Azure.WebJobs.Host",
-          "type": "Microsoft.Azure.WebJobs.Host.Executors.FunctionInvoker`2",
-          "method": "InvokeAsync",
+          "type": "Microsoft.Azure.WebJobs.Host.Executors.FunctionExecutor",
+          "method": "TryExecuteAsync",
           "signature_types": [
-            "System.Threading.Tasks.Task`1[System.Object]",
-            "System.Object",
-            "System.Object[]"
+            "System.Threading.Tasks.Task`1[Microsoft.Azure.WebJobs.Host.Executors.IDelayedException]",
+            "Microsoft.Azure.WebJobs.Host.Executors.IFunctionInstance",
+            "System.Threading.CancellationToken"
           ],
           "minimum_major": 3,
           "minimum_minor": 0,
@@ -664,7 +664,7 @@
         },
         "wrapper": {
           "assembly": "Datadog.Trace.ClrProfiler.Managed, Version=1.27.1.0, Culture=neutral, PublicKeyToken=def86d061d0d2eeb",
-          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions.AzureFunctionInvokerInvokeAsyncIntegration",
+          "type": "Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions.AzureFunctionExecutorTryExecuteAsyncIntegration",
           "action": "CallTargetModification"
         }
       }

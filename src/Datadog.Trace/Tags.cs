@@ -405,5 +405,13 @@ namespace Datadog.Trace
         internal const string ElasticsearchUrl = "elasticsearch.url";
 
         internal const string RuntimeId = "runtime-id";
+        
+        internal const string AzureFunctionTriggerType = "azure-func.triggertype";
+
+        internal const string AzureFunctionShortName = "azure-func.name";
+
+        internal const string AzureFunctionFullName = "azure-func.fullname";
+
+        internal const string AzureFunctionClassName = "azure-func.class";
     }
 }
