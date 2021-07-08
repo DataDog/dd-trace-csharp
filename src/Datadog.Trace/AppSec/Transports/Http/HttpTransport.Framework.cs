@@ -4,8 +4,10 @@
 // </copyright>
 
 #if NETFRAMEWORK
-using System.Diagnostics;
+using System;
+using System.Threading.Tasks;
 using System.Web;
+using Datadog.Trace.AppSec.EventModel;
 using Datadog.Trace.AppSec.Waf;
 using Datadog.Trace.Logging;
 
@@ -22,6 +24,11 @@ namespace Datadog.Trace.AppSec.Transport.Http
             this.context = context;
         }
 
+        public void AddRequestScope(Guid guid)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Block()
         {
             context.Response.StatusCode = 403;
@@ -35,6 +42,21 @@ namespace Datadog.Trace.AppSec.Transport.Http
         {
             return context.Items[WafKey] as IAdditiveContext;
         }
+
+        public Request Request()
+        {
+            return new Request
+            {
+                Url = context.Request.Url,
+                Method = context.Request.HttpMethod,
+            };
+        }
+
+        public Response Response(bool blocked) => new()
+        {
+            Status = context.Response.StatusCode,
+            Blocked = blocked
+        };
 
         public void SetAdditiveContext(IAdditiveContext additiveContext)
         {

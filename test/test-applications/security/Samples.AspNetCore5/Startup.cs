@@ -7,6 +7,7 @@ using Samples.AspNetCore5.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Samples.AspNetCore5
@@ -45,10 +46,12 @@ namespace Samples.AspNetCore5
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-             
+
             app.UseRouting();
 
             app.UseAuthorization();
+
+          
 
             app.UseEndpoints(endpoints =>
             {
