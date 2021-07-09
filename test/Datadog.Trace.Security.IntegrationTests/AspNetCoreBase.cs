@@ -34,13 +34,14 @@ namespace Datadog.Trace.Security.IntegrationTests
 
         protected ITestOutputHelper Output { get; }
 
-        public Task RunOnSelfHosted(bool enableSecurity)
+        public async Task<MockTracerAgent> RunOnSelfHosted(bool enableSecurity)
         {
             var agentPort = TcpPortProvider.GetOpenPort();
             httpPort = TcpPortProvider.GetOpenPort();
 
             using var agent = new MockTracerAgent(agentPort);
-            return StartSample(agent.Port, arguments: null, aspNetCorePort: httpPort, enableSecurity: enableSecurity);
+            await StartSample(agent.Port, arguments: null, aspNetCorePort: httpPort, enableSecurity: enableSecurity);
+            return agent;
         }
 
         public Task RunOnIis(string path, bool enableSecurity)
@@ -48,10 +49,8 @@ namespace Datadog.Trace.Security.IntegrationTests
             var initialAgentPort = TcpPortProvider.GetOpenPort();
             var agent = new MockTracerAgent(initialAgentPort);
             httpPort = TcpPortProvider.GetOpenPort();
-
             var arguments = $"/clr:v4.0 /path:{EnvironmentHelper.GetSampleProjectDirectory()} /systray:false /port:{httpPort} /trace:verbose";
             Output.WriteLine($"[webserver] starting {path} {string.Join(" ", arguments)}");
-
             return StartSample(agent.Port, arguments, httpPort, iisExpress: true, enableSecurity: enableSecurity);
         }
 

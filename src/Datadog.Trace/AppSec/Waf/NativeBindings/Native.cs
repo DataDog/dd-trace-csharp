@@ -25,7 +25,7 @@ namespace Datadog.Trace.AppSec.Waf.NativeBindings
         internal static extern PWVersion pw_getVersion();
 
         [DllImport(DllName)]
-        internal static extern IntPtr pw_initH(string wafRule, ref PWConfig config, ref string errors);
+        internal static extern IntPtr pw_initH(string wafRule, ref PWConfig config, out IntPtr errors);
 
         [DllImport(DllName)]
         internal static extern void pw_clearRuleH(IntPtr wafHandle);

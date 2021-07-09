@@ -24,9 +24,10 @@ namespace Datadog.Trace.Security.IntegrationTests
         [InlineData(false, HttpStatusCode.OK)]
         public async Task TestBlockedRequestAsync(bool enableSecurity, HttpStatusCode expectedStatusCode)
         {
-            await RunOnSelfHosted(enableSecurity);
-            var (statusCode, _) = await SubmitRequest("/Home?arg=database()");
+            var agent = await RunOnSelfHosted(enableSecurity);
+            var (statusCode, _) = await SubmitRequest("/Home?arg=[$slice]");
             Assert.Equal(expectedStatusCode, statusCode);
+            // var spans = agent.WaitForSpans(2);
         }
     }
 }

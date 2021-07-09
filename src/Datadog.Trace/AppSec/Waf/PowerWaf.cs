@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Datadog.Trace.AppSec.Waf.NativeBindings;
 using Datadog.Trace.Logging;
@@ -66,18 +67,20 @@ namespace Datadog.Trace.AppSec.Waf
 
         private Rule NewRule(string rule)
         {
-            string message = null;
             PWConfig args = default;
-            var ruleHandle = Native.pw_initH(rule, ref args, ref message);
-
+            IntPtr errors;
+            var ruleHandle = Native.pw_initH(rule, ref args, out errors);
+            var errorMess = Marshal.PtrToStringAnsi(errors);
+            // todo: need to free the char**, so need to expose pw_freeDiagnotics? like https://github.com/DataDog/dd-trace-js/pull/1462/files#diff-1a6313cd99f5ee5116d0a93f09250251689a0d2bb03f10909a087a888293de83R36-R44
             if (ruleHandle == IntPtr.Zero)
             {
-                Log.Error("Failed to create rules: {Message}", message);
+                Console.WriteLine("Failed to create rules: {0}", errorMess);
+                Log.Error("Failed to create rules: {Message}", errorMess);
                 return null;
             }
             else
             {
-                Log.Debug("Rules successfully created: {Message}", message);
+                Log.Debug("Rules successfully created: {Message}", errorMess);
             }
 
             return new Rule(ruleHandle);
