@@ -21,7 +21,8 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
 
         private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor(typeof(AzureFunctionCommon));
 
-        public static CallTargetState OnMethodBegin<TTarget>(TTarget instance, IFunctionInstance instanceParam)
+        public static CallTargetState OnMethodBegin<TTarget, TFunction>(TTarget instance, TFunction instanceParam)
+            where TFunction : IFunctionInstance
         {
             var tracer = Tracer.Instance;
 
@@ -58,7 +59,8 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
             return result;
         }
 
-        internal static Scope CreateScope(Tracer tracer, IFunctionInstance instanceParam)
+        internal static Scope CreateScope<TFunction>(Tracer tracer, TFunction instanceParam)
+            where TFunction : IFunctionInstance
         {
             Scope scope = null;
 

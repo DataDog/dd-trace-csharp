@@ -26,7 +26,7 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
         /// <summary>
         /// Gets binding object
         /// </summary>
-        object BindingSource { get; }
+        IBindingSource BindingSource { get; }
 
         /// <summary>
         /// Gets Function invoker object

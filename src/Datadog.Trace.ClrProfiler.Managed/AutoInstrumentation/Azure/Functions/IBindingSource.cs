@@ -4,7 +4,6 @@
 // </copyright>
 
 using System.Collections.Generic;
-using Datadog.Trace.DuckTyping;
 
 namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
 {
@@ -16,13 +15,13 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
         /// <summary>
         /// Gets the binding field
         /// </summary>
-        [Duck(Name = "_binding", Kind = DuckKind.Field)]
+        [DuckField("_binding")]
         object Binding { get; }
 
         /// <summary>
         /// Gets the parameters field
         /// </summary>
-        [Duck(Name = "_parameters", Kind = DuckKind.Field)]
+        [DuckField("_parameters")]
         IDictionary<string, object> Parameters { get; }
     }
 }
