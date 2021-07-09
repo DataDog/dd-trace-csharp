@@ -188,3 +188,4 @@ jobs:
       ./run.sh
     env:
       DD_SERVICE: dd-trace-dotnet
+      DD_ENV: CI
