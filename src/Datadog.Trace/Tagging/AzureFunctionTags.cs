@@ -20,6 +20,7 @@ namespace Datadog.Trace.Tagging
         public AzureFunctionTags()
         {
             SpanKind = SpanKinds.Server;
+            TriggerType = "Unknown";
         }
 
         public override string SpanKind { get; }

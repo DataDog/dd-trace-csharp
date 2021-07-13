@@ -33,12 +33,12 @@ namespace Samples.AzureFunctions
             var prefixes = new[] { "COR_", "CORECLR_", "DD_", "DATADOG_" };
 
             return from envVar in Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
-                          from prefix in prefixes
-                          let key = (envVar.Key as string)?.ToUpperInvariant()
-                          let value = envVar.Value as string
-                          where key.StartsWith(prefix)
-                          orderby key
-                          select new KeyValuePair<string, string>(key, value);
+                   from prefix in prefixes
+                   let key = (envVar.Key as string)?.ToUpperInvariant()
+                   let value = envVar.Value as string
+                   where key.StartsWith(prefix)
+                   orderby key
+                   select new KeyValuePair<string, string>(key, value);
         }
 
         public static string[] GetUsefulStack()
@@ -48,15 +48,15 @@ namespace Samples.AzureFunctions
             return methods;
         }
 
-        // [FunctionName("TimerTrigger")]
-        // public static async Task TimerTriggerFunction([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
-        // {
-        //     log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-        //     var stackTrace = GetUsefulStack();
-        //     log.LogInformation($"Stack trace: {stackTrace}");
-        //     LogEnvironmentVariables(log);
-        //     await WriteJokeToConsole();
-        // }
+        [FunctionName("TimerTrigger")]
+        public static async Task TimerTriggerFunction([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
+        {
+            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            var stackTrace = GetUsefulStack();
+            log.LogInformation($"Stack trace: {stackTrace}");
+            LogEnvironmentVariables(log);
+            await WriteJokeToConsole();
+        }
 
         [FunctionName("HttpTrigger")]
         public static async Task<IActionResult> HttpTriggerFunction(

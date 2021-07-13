@@ -77,6 +77,11 @@ namespace Datadog.Trace.PlatformHelpers
         /// </summary>
         internal const string OperatingSystemKey = "WEBSITE_OS";
 
+        /// <summary>
+        /// The unique name of the web site.
+        /// </summary>
+        internal const string WebsiteSiteNameKey = "WEBSITE_SITE_NAME";
+
         private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor(typeof(AzureAppServices));
 
         static AzureAppServices()
@@ -128,6 +133,7 @@ namespace Datadog.Trace.PlatformHelpers
                         case AzureContext.AzureFunction:
                             SiteKind = "functionapp";
                             SiteType = "function";
+                            DefaultFunctionServiceName = GetVariableIfExists(WebsiteSiteNameKey, environmentVariables);
                             break;
                         case AzureContext.AzureAppService:
                             SiteKind = "app";
@@ -154,6 +160,8 @@ namespace Datadog.Trace.PlatformHelpers
         public bool IsRelevant { get; }
 
         public bool IsUnsafeToTrace { get; }
+
+        public string DefaultFunctionServiceName { get; }
 
         public string SiteExtensionVersion { get; }
 

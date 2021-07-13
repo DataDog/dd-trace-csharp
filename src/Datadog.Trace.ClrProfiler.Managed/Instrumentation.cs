@@ -9,6 +9,7 @@ using System.Threading;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.DiagnosticListeners;
 using Datadog.Trace.Logging;
+using Datadog.Trace.PlatformHelpers;
 using Datadog.Trace.ServiceFabric;
 
 namespace Datadog.Trace.ClrProfiler
@@ -124,7 +125,17 @@ namespace Datadog.Trace.ClrProfiler
 #if !NETFRAMEWORK
         private static void StartDiagnosticManager()
         {
-            var observers = new List<DiagnosticObserver> { new AspNetCoreDiagnosticObserver() };
+            List<DiagnosticObserver> observers;
+            if (AzureAppServices.Metadata.IsRelevant && AzureAppServices.Metadata.AzureContext == AzureContext.AzureFunction)
+            {
+                // Azure Functions have their own top level span
+                observers = new List<DiagnosticObserver>();
+            }
+            else
+            {
+                observers = new List<DiagnosticObserver> { new AspNetCoreDiagnosticObserver() };
+            }
+
             var diagnosticManager = new DiagnosticManager(observers);
             diagnosticManager.Start();
 

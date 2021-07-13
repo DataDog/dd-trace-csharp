@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using Datadog.Trace.ClrProfiler.CallTarget;
 using Datadog.Trace.Configuration;
+using Datadog.Trace.DuckTyping;
 
 namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
 {
@@ -30,16 +31,15 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
         /// OnMethodBegin callback
         /// </summary>
         /// <typeparam name="TTarget">Type of the target</typeparam>
-        /// <typeparam name="TFunction">Type of the function instance</typeparam>
         /// <param name="instance">Instance value, aka `this` of the instrumented method.</param>
         /// <param name="functionInstance">First argument</param>
         /// <param name="cancellationToken">Second argument</param>
         /// <returns>Calltarget state value</returns>
-        public static CallTargetState OnMethodBegin<TTarget, TFunction>(TTarget instance, TFunction functionInstance, CancellationToken cancellationToken)
+        public static CallTargetState OnMethodBegin<TTarget>(TTarget instance, object functionInstance, CancellationToken cancellationToken)
             where TTarget : IFunctionInvoker
-            where TFunction : IFunctionInstance
+            // where TFunction : IFunctionInstance
         {
-            return AzureFunctionCommon.OnMethodBegin(instance, functionInstance);
+            return AzureFunctionCommon.OnMethodBegin(instance, functionInstance.DuckCast<IFunctionInstance>());
         }
 
         /// <summary>

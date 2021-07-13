@@ -1,4 +1,4 @@
-// <copyright file="IBindingSource.cs" company="Datadog">
+// <copyright file="ITimerTriggerBindingSource.cs" company="Datadog">
 // Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2 License.
 // This product includes software developed at Datadog (https://www.datadoghq.com/). Copyright 2017 Datadog, Inc.
 // </copyright>
@@ -10,14 +10,8 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
     /// <summary>
     /// Interface for ducktyping
     /// </summary>
-    public interface IBindingSource
+    public interface ITimerTriggerBindingSource
     {
-        /// <summary>
-        /// Gets the binding field
-        /// </summary>
-        [DuckField("_binding")]
-        object Binding { get; }
-
         /// <summary>
         /// Gets the parameters field
         /// </summary>

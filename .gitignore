@@ -287,3 +287,4 @@ src/Datadog.Trace.ClrProfiler.Native/tmp.*
 src/Datadog.Trace.ClrProfiler.Native/Makefile
 src/Datadog.Trace.ClrProfiler.Native/CMakeCache.txt
 src/Datadog.Trace.ClrProfiler.Native/cmake_install.cmake
+/test/test-applications/integrations/Samples.AzureFunctions/Properties/PublishProfiles/*

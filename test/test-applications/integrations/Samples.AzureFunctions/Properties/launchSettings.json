@@ -5,8 +5,12 @@
       "environmentVariables": {
         "DD_TRACE_DEBUG": "true",
 
-        // "DD_TRACE_CALLTARGET_ENABLED":  "0", 
-        // "DD_AZURE_APP_SERVICES": "1",
+        // Start Mock Functions Variables
+        "DD_AZURE_APP_SERVICES": "1",
+        "FUNCTIONS_EXTENSION_VERSION": "~3",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "DD_AAS_DOTNET_EXTENSION_VERSION": "development",
+        // End Mock Functions Variables
 
         "COR_ENABLE_PROFILING": "1",
         "COR_PROFILER": "{846F5F1C-F9AE-4B07-969E-05C26BC060D8}",
