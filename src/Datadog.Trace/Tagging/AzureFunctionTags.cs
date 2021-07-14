@@ -13,9 +13,9 @@ namespace Datadog.Trace.Tagging
             InstrumentationTagsProperties.Concat(
                 new ReadOnlyProperty<AzureFunctionTags, string>(Trace.Tags.InstrumentationName, t => t.InstrumentationName),
                 new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionTriggerType, t => t.TriggerType, (t, v) => t.TriggerType = v),
-                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionShortName, t => t.ShortName, (t, v) => t.ShortName = v),
-                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionFullName, t => t.FullName, (t, v) => t.FullName = v),
-                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionClassName, t => t.ClassName, (t, v) => t.ClassName = v));
+                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionName, t => t.ShortName, (t, v) => t.ShortName = v),
+                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionMethod, t => t.FullName, (t, v) => t.FullName = v),
+                new Property<AzureFunctionTags, string>(Trace.Tags.AzureFunctionClass, t => t.ClassName, (t, v) => t.ClassName = v));
 
         public AzureFunctionTags()
         {

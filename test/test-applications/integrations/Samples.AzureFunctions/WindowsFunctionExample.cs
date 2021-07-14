@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -17,50 +14,43 @@ namespace Samples.AzureFunctions
 {
     public static class WindowsFunctionExample
     {
-        private static readonly HttpClient HttpClient;
-        private const string IntervalInSeconds = "*/5 * * * * *";
+        private static readonly HttpClient JokeHttpClient;
+        private static readonly HttpClient FunctionHttpClient;
+        private static string _httpFunctionUrl;
+
+        private const string IntervalInSeconds = "*/60 * * * * *";
 
         static WindowsFunctionExample()
         {
-            HttpClient = new HttpClient();
-            HttpClient.DefaultRequestHeaders
-                  .Accept
-                  .Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+            FunctionHttpClient = new HttpClient();
+            JokeHttpClient = new HttpClient();
+            JokeHttpClient.DefaultRequestHeaders
+                          .Accept
+                          .Add(new MediaTypeWithQualityHeaderValue("text/plain"));
         }
 
-        public static IEnumerable<KeyValuePair<string, string>> EnvironmentSetup()
-        {
-            var prefixes = new[] { "COR_", "CORECLR_", "DD_", "DATADOG_" };
+        // [FunctionName("SimpleTimer")]
+        // public static async Task SimpleTimer([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
+        // {
+        //     log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+        //     await WriteJokeToConsole(log);
+        // }
 
-            return from envVar in Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
-                   from prefix in prefixes
-                   let key = (envVar.Key as string)?.ToUpperInvariant()
-                   let value = envVar.Value as string
-                   where key.StartsWith(prefix)
-                   orderby key
-                   select new KeyValuePair<string, string>(key, value);
-        }
-
-        public static string[] GetUsefulStack()
+        [FunctionName("DistributedTimer")]
+        public static async Task DistributedTimer([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
         {
-            var stackTrace = Environment.StackTrace;
-            string[] methods = stackTrace.Split(new[] { " at " }, StringSplitOptions.None);
-            return methods;
-        }
-
-        [FunctionName("TimerTrigger")]
-        public static async Task TimerTriggerFunction([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
-        {
+            _httpFunctionUrl = _httpFunctionUrl ?? Environment.GetEnvironmentVariable("DD_FUNCTION_HOST_BASE") ?? "localhost:7071";
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            var stackTrace = GetUsefulStack();
-            log.LogInformation($"Stack trace: {stackTrace}");
-            LogEnvironmentVariables(log);
-            await WriteJokeToConsole();
+            var url = $"http://{_httpFunctionUrl}";
+            var simpleResponse = await FunctionHttpClient.GetStringAsync($"{url}/api/SimpleHttp");
+            log.LogWarning(simpleResponse);
+            var slowResponse = await FunctionHttpClient.GetStringAsync($"{url}/api/slow");
+            log.LogWarning(slowResponse);
         }
 
-        [FunctionName("HttpTrigger")]
-        public static async Task<IActionResult> HttpTriggerFunction(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        [FunctionName("SimpleHttp")]
+        public static async Task<IActionResult> SimpleHttp(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -71,19 +61,19 @@ namespace Samples.AzureFunctions
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            var joke = await WriteJokeToConsole(log);
 
-            await WriteJokeToConsole();
+            string responseMessage = string.IsNullOrEmpty(name)
+                                         ? $"{joke}. Pass a name in the query string or in the request body for a personalized response."
+                                         : $"Hello, {name}. {joke}.";
 
             return new OkObjectResult(responseMessage);
         }
 
 
-        [FunctionName("HttpTriggerSlow")]
-        public static async Task<IActionResult> HttpTriggerSlowFunction(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "slow")] HttpRequest req,
+        [FunctionName("SlowHttp")]
+        public static async Task<IActionResult> SlowHttp(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "slow")] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -96,30 +86,22 @@ namespace Samples.AzureFunctions
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                                         ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                                         : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            var joke = await WriteJokeToConsole(log);
 
-            await WriteJokeToConsole();
+            string responseMessage = string.IsNullOrEmpty(name)
+                                         ? $"{joke}. Pass a name in the query string or in the request body for a personalized response."
+                                         : $"Hello, {name}. {joke}.";
 
             await Task.Delay(100);
 
             return new OkObjectResult(responseMessage);
         }
 
-        private static async Task WriteJokeToConsole()
+        private static async Task<string> WriteJokeToConsole(ILogger log)
         {
-            var joke = await HttpClient.GetStringAsync("https://icanhazdadjoke.com/");
-            Console.WriteLine(joke);
+            var joke = await JokeHttpClient.GetStringAsync("https://icanhazdadjoke.com/");
+            log.LogWarning(joke);
+            return joke;
         }
-
-        private static void LogEnvironmentVariables(ILogger log)
-        {
-            foreach (var kvp in EnvironmentSetup())
-            {
-                log.LogInformation($"[ENV] {kvp.Key}: {kvp.Value}");
-            }
-        }
-
     }
 }
