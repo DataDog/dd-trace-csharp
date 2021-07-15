@@ -446,6 +446,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build\_bui
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Owin.WebApi2", "test\test-applications\integrations\Samples.Owin.WebApi2\Samples.Owin.WebApi2.csproj", "{BF1E5BA6-C0E5-4472-9D5D-2622231DD275}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogsInjection.CrossAppDomainCalls.Serilog", "test\test-applications\regression\LogsInjection.CrossAppDomainCalls.Serilog\LogsInjection.CrossAppDomainCalls.Serilog.csproj", "{177A6697-0144-4F4A-BCE4-C3AF093D14B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogsInjection.CrossAppDomainCalls.NLog", "test\test-applications\regression\LogsInjection.CrossAppDomainCalls.NLog\LogsInjection.CrossAppDomainCalls.NLog.csproj", "{FF9D9233-5470-451F-AD07-C1D93504FEF6}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\Datadog.Trace.Ci.Shared\Datadog.Trace.Ci.Shared.projitems*{1f146d40-8b21-4630-8049-14fa4bbbb217}*SharedItemsImports = 5
@@ -1692,6 +1696,26 @@ Global
 		{BF1E5BA6-C0E5-4472-9D5D-2622231DD275}.Release|x64.Build.0 = Release|x64
 		{BF1E5BA6-C0E5-4472-9D5D-2622231DD275}.Release|x86.ActiveCfg = Release|x86
 		{BF1E5BA6-C0E5-4472-9D5D-2622231DD275}.Release|x86.Build.0 = Release|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Debug|x64.ActiveCfg = Debug|x64
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Debug|x64.Build.0 = Debug|x64
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Debug|x86.ActiveCfg = Debug|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Debug|x86.Build.0 = Debug|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Release|Any CPU.ActiveCfg = Release|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Release|x64.ActiveCfg = Release|x64
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Release|x64.Build.0 = Release|x64
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Release|x86.ActiveCfg = Release|x86
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2}.Release|x86.Build.0 = Release|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Debug|x64.ActiveCfg = Debug|x64
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Debug|x64.Build.0 = Debug|x64
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Debug|x86.ActiveCfg = Debug|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Debug|x86.Build.0 = Debug|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Release|Any CPU.ActiveCfg = Release|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Release|x64.ActiveCfg = Release|x64
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Release|x64.Build.0 = Release|x64
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Release|x86.ActiveCfg = Release|x86
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1824,6 +1848,8 @@ Global
 		{95613224-C1D7-4D4A-8926-F70DA26371CA} = {BAF8F246-3645-42AD-B1D0-0F7EAFBAB34A}
 		{78004AA7-26DD-44DB-A2C7-C287A5BBE5D6} = {A0C5FBBB-CFB2-4FB9-B8F0-55676E9DCF06}
 		{BF1E5BA6-C0E5-4472-9D5D-2622231DD275} = {BAF8F246-3645-42AD-B1D0-0F7EAFBAB34A}
+		{177A6697-0144-4F4A-BCE4-C3AF093D14B2} = {498A300E-D036-49B7-A43D-821D1CAF11A5}
+		{FF9D9233-5470-451F-AD07-C1D93504FEF6} = {498A300E-D036-49B7-A43D-821D1CAF11A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {160A1D00-1F5B-40F8-A155-621B4459D78F}
