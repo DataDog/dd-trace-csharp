@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.DiagnosticListeners;
 using Datadog.Trace.Logging;
@@ -128,8 +129,8 @@ namespace Datadog.Trace.ClrProfiler
             List<DiagnosticObserver> observers;
             if (AzureAppServices.Metadata.IsRelevant && AzureAppServices.Metadata.AzureContext == AzureContext.AzureFunction)
             {
-                // Azure Functions have their own top level span
-                observers = new List<DiagnosticObserver>();
+                // Azure Functions need to share a top level span across all trigger types
+                observers = new List<DiagnosticObserver> { new AspNetCoreDiagnosticObserver(AzureFunctionCommon.OperationName, AzureFunctionCommon.IntegrationId, AzureFunctionCommon.OverrideWithAzureFunctionMetadata) };
             }
             else
             {

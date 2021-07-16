@@ -1,4 +1,4 @@
-// <copyright file="IDefaultHttpRequest.cs" company="Datadog">
+// <copyright file="IHeaderDictionary.cs" company="Datadog">
 // Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2 License.
 // This product includes software developed at Datadog (https://www.datadoghq.com/). Copyright 2017 Datadog, Inc.
 // </copyright>
@@ -8,28 +8,18 @@ using System.Collections.Generic;
 namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
 {
     /// <summary>
-    /// Interface for ducktyping
+    /// Represents HttpRequest and HttpResponse headers
     /// </summary>
-    public interface IDefaultHttpRequest
+    public interface IHeaderDictionary
     {
         /// <summary>
-        /// Gets the Host
+        /// Get header values for key
         /// </summary>
-        object Host { get; }
+        IEnumerable<string> GetValues(string name);
 
         /// <summary>
-        /// Gets the Path
+        /// Try get header values for key
         /// </summary>
-        object Path { get; }
-
-        /// <summary>
-        /// Gets the Method
-        /// </summary>
-        object Method { get; }
-
-        /// <summary>
-        /// Gets the request headers
-        /// </summary>
-        object Headers { get; }
+        bool TryGetValues(string name, out IEnumerable<string> values);
     }
 }

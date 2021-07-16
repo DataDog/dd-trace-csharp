@@ -18,7 +18,7 @@ namespace Samples.AzureFunctions
         private static readonly HttpClient FunctionHttpClient;
         private static string _httpFunctionUrl;
 
-        private const string IntervalInSeconds = "*/60 * * * * *";
+        private const string IntervalInSeconds = "*/10 * * * * *";
 
         static WindowsFunctionExample()
         {
@@ -29,12 +29,12 @@ namespace Samples.AzureFunctions
                           .Add(new MediaTypeWithQualityHeaderValue("text/plain"));
         }
 
-        // [FunctionName("SimpleTimer")]
-        // public static async Task SimpleTimer([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
-        // {
-        //     log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-        //     await WriteJokeToConsole(log);
-        // }
+        [FunctionName("SimpleTimer")]
+        public static async Task SimpleTimer([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)
+        {
+            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            await WriteJokeToConsole(log);
+        }
 
         [FunctionName("DistributedTimer")]
         public static async Task DistributedTimer([TimerTrigger(IntervalInSeconds)] TimerInfo myTimer, ILogger log)

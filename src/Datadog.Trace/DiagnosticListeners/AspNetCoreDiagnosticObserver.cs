@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Datadog.Trace.Configuration;
 using Datadog.Trace.DuckTyping;
 using Datadog.Trace.ExtensionMethods;
@@ -50,6 +49,10 @@ namespace Datadog.Trace.DiagnosticListeners
         private static readonly IDatadogLogger Log = DatadogLogging.GetLoggerFor<AspNetCoreDiagnosticObserver>();
         private readonly Tracer _tracer;
 
+        private readonly IntegrationInfo _integrationId = IntegrationId;
+        private readonly string _requestInOperationName = HttpRequestInOperationName;
+        private readonly Action<Span> _spanTransform = s => { };
+
         private string _hostingHttpRequestInStartEventKey;
         private string _mvcBeforeActionEventKey;
         private string _mvcAfterActionEventKey;
@@ -59,13 +62,21 @@ namespace Datadog.Trace.DiagnosticListeners
         private string _routingEndpointMatchedKey;
 
         public AspNetCoreDiagnosticObserver()
-            : this(null)
+            : this(tracer: null)
         {
         }
 
         public AspNetCoreDiagnosticObserver(Tracer tracer)
         {
             _tracer = tracer;
+        }
+
+        public AspNetCoreDiagnosticObserver(string httpOperationName, IntegrationInfo integrationInfo, Action<Span> transform)
+            : this(tracer: null)
+        {
+            _requestInOperationName = httpOperationName;
+            _integrationId = integrationInfo;
+            _spanTransform = transform;
         }
 
         protected override string ListenerName => DiagnosticListenerName;
@@ -311,7 +322,7 @@ namespace Datadog.Trace.DiagnosticListeners
 
                     if (requestHeaders != null)
                     {
-                        return SpanContextPropagator.Instance.ExtractHeaderTags(new HeadersCollectionAdapter(requestHeaders), settings.HeaderTags, defaultTagPrefix: SpanContextPropagator.HttpRequestHeadersTagPrefix);
+                        return SpanContextPropagator.Instance.ExtractHeaderTags(requestHeaders.GetHeaders, settings.HeaderTags, defaultTagPrefix: SpanContextPropagator.HttpRequestHeadersTagPrefix);
                     }
                 }
                 catch (Exception ex)
@@ -490,7 +501,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId))
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId))
             {
                 return;
             }
@@ -528,11 +539,13 @@ namespace Datadog.Trace.DiagnosticListeners
                 var tagsFromHeaders = ExtractHeaderTags(request, tracer);
 
                 var tags = tracer.Settings.RouteTemplateResourceNamesEnabled ? new AspNetCoreEndpointTags() : new AspNetCoreTags();
-                var scope = tracer.StartActiveWithTags(HttpRequestInOperationName, propagatedContext, tags: tags);
+                var scope = tracer.StartActiveWithTags(_requestInOperationName, propagatedContext, tags: tags);
 
                 scope.Span.DecorateWebServerSpan(resourceName, httpMethod, host, url, tags, tagsFromHeaders);
 
-                tags.SetAnalyticsSampleRate(IntegrationId, tracer.Settings, enabledWithGlobalSetting: true);
+                tags.SetAnalyticsSampleRate(_integrationId, tracer.Settings, enabledWithGlobalSetting: true);
+
+                _spanTransform?.Invoke(scope.Span);
             }
         }
 
@@ -540,7 +553,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId) ||
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId) ||
                 !tracer.Settings.RouteTemplateResourceNamesEnabled)
             {
                 return;
@@ -660,7 +673,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId))
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId))
             {
                 return;
             }
@@ -786,7 +799,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId) ||
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId) ||
                 !tracer.Settings.RouteTemplateResourceNamesEnabled)
             {
                 return;
@@ -804,7 +817,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId))
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId))
             {
                 return;
             }
@@ -829,7 +842,7 @@ namespace Datadog.Trace.DiagnosticListeners
         {
             var tracer = CurrentTracer;
 
-            if (!tracer.Settings.IsIntegrationEnabled(IntegrationId))
+            if (!tracer.Settings.IsIntegrationEnabled(_integrationId))
             {
                 return;
             }
