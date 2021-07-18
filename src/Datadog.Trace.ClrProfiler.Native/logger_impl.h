@@ -64,7 +64,7 @@ private:
 
 #ifndef _WIN32
 // for linux and osx we need a function to get the path from a filepath
-std::string getPathName(const std::string& s)
+inline std::string getPathName(const std::string& s)
 {
     char sep = '/';
     size_t i = s.rfind(sep, s.length());
