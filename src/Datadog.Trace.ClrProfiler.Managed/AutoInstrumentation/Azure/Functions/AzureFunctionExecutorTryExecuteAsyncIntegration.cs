@@ -31,6 +31,7 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
         /// OnMethodBegin callback
         /// </summary>
         /// <typeparam name="TTarget">Type of the target</typeparam>
+        /// <typeparam name="TFunction">Type of the invoker</typeparam>
         /// <param name="instance">Instance value, aka `this` of the instrumented method.</param>
         /// <param name="functionInstance">First argument</param>
         /// <param name="cancellationToken">Second argument</param>
