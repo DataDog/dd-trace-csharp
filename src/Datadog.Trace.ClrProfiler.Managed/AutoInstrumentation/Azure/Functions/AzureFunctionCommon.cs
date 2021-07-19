@@ -78,13 +78,16 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
                 var functionName = instanceParam.FunctionDescriptor.ShortName;
                 var fullName = instanceParam.FunctionDescriptor.FullName;
 
-                var tags = new AzureFunctionTags();
                 var resourceName = $"{triggerType} {functionName}";
 
-                tags.TriggerType = triggerType;
-                tags.ShortName = functionName;
-                tags.FullName = fullName;
-                tags.InstrumentationName = IntegrationId.Name;
+                var tags = new AzureFunctionTags
+                {
+                    TriggerType = triggerType, 
+                    ShortName = functionName, 
+                    FullName = fullName, 
+                    InstrumentationName = IntegrationId.Name
+                };
+
                 tags.SetAnalyticsSampleRate(IntegrationId, tracer.Settings, enabledWithGlobalSetting: false);
 
                 scope = tracer.StartActiveWithTags(OperationName, tags: tags);

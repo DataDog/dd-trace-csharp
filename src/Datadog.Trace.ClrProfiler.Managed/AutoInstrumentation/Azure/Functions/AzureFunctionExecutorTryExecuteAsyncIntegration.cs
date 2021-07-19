@@ -35,11 +35,11 @@ namespace Datadog.Trace.ClrProfiler.AutoInstrumentation.Azure.Functions
         /// <param name="functionInstance">First argument</param>
         /// <param name="cancellationToken">Second argument</param>
         /// <returns>Calltarget state value</returns>
-        public static CallTargetState OnMethodBegin<TTarget>(TTarget instance, object functionInstance, CancellationToken cancellationToken)
+        public static CallTargetState OnMethodBegin<TTarget, TFunction>(TTarget instance, TFunction functionInstance, CancellationToken cancellationToken)
             where TTarget : IFunctionInvoker
-            // where TFunction : IFunctionInstance
+            where TFunction : IFunctionInstance
         {
-            return AzureFunctionCommon.OnMethodBegin(instance, functionInstance.DuckCast<IFunctionInstance>());
+            return AzureFunctionCommon.OnMethodBegin(instance, functionInstance);
         }
 
         /// <summary>

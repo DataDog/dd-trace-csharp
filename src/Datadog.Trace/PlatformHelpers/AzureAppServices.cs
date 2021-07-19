@@ -133,7 +133,6 @@ namespace Datadog.Trace.PlatformHelpers
                         case AzureContext.AzureFunction:
                             SiteKind = "functionapp";
                             SiteType = "function";
-                            DefaultFunctionServiceName = GetVariableIfExists(WebsiteSiteNameKey, environmentVariables);
                             break;
                         case AzureContext.AzureAppService:
                             SiteKind = "app";
@@ -160,8 +159,6 @@ namespace Datadog.Trace.PlatformHelpers
         public bool IsRelevant { get; }
 
         public bool IsUnsafeToTrace { get; }
-
-        public string DefaultFunctionServiceName { get; }
 
         public string SiteExtensionVersion { get; }
 
