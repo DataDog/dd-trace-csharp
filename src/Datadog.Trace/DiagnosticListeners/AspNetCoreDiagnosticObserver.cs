@@ -781,6 +781,7 @@ namespace Datadog.Trace.DiagnosticListeners
 
         private void OnMvcBeforeAction(object arg)
         {
+            Log.Warning("before action");
             var tracer = CurrentTracer;
             var security = CurrentSecurity;
 

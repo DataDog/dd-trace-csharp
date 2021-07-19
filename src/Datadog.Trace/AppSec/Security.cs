@@ -42,14 +42,13 @@ namespace Datadog.Trace.AppSec
 
         internal Security(InstrumentationGateway instrumentationGateway = null, IPowerWaf powerWaf = null, IAgentWriter agentWriter = null)
         {
-            _instrumentationGateway = instrumentationGateway ?? new InstrumentationGateway();
-
-            _powerWaf = powerWaf ?? new PowerWaf();
-            _agentWriter = agentWriter ?? new AgentWriter();
-            _instrumentationGateway.InstrumentationGetwayEvent += InstrumentationGateway_InstrumentationGetwayEvent;
-
             var found = bool.TryParse(Environment.GetEnvironmentVariable("DD_ENABLE_SECURITY"), out var enabled);
             Enabled = found && enabled;
+            _powerWaf = powerWaf ?? new PowerWaf();
+            _instrumentationGateway = instrumentationGateway ?? new InstrumentationGateway();
+
+            _agentWriter = agentWriter ?? new AgentWriter();
+            _instrumentationGateway.InstrumentationGetwayEvent += InstrumentationGateway_InstrumentationGetwayEvent;
         }
 
         /// <summary>

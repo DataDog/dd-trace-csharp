@@ -39,7 +39,7 @@ namespace Datadog.Trace.Security.IntegrationTests
             var agentPort = TcpPortProvider.GetOpenPort();
             httpPort = TcpPortProvider.GetOpenPort();
 
-            using var agent = new MockTracerAgent(agentPort);
+            var agent = new MockTracerAgent(agentPort);
             await StartSample(agent.Port, arguments: null, aspNetCorePort: httpPort, enableSecurity: enableSecurity);
             return agent;
         }
@@ -68,7 +68,6 @@ namespace Datadog.Trace.Security.IntegrationTests
         {
             var response = await httpClient.GetAsync($"http://localhost:{this.httpPort}{path}");
             var responseText = await response.Content.ReadAsStringAsync();
-            Output.WriteLine($"[http] {response.StatusCode} {responseText}");
             return (response.StatusCode, responseText);
         }
 

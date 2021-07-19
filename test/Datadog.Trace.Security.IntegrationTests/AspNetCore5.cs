@@ -24,10 +24,24 @@ namespace Datadog.Trace.Security.IntegrationTests
         [InlineData(false, HttpStatusCode.OK)]
         public async Task TestBlockedRequestAsync(bool enableSecurity, HttpStatusCode expectedStatusCode)
         {
-            var agent = await RunOnSelfHosted(enableSecurity);
+            using var agent = await RunOnSelfHosted(enableSecurity);
+            var mockTracerAgentAppSecWrapper = new MockTracerAgentAppSecWrapper(agent);
+            mockTracerAgentAppSecWrapper.SubscribeAppSecEvents();
             var (statusCode, _) = await SubmitRequest("/Home?arg=[$slice]");
             Assert.Equal(expectedStatusCode, statusCode);
-            // var spans = agent.WaitForSpans(2);
+            var spans = agent.WaitForSpans(2, returnAllOperations: true);
+            Assert.Equal(2, spans.Count);
+            foreach (var span in spans)
+            {
+                Assert.Equal("aspnet_core.request", span.Name);
+                Assert.Equal("Samples.AspNetCore5", span.Service);
+                Assert.Equal("web", span.Type);
+            }
+
+            var expectedAppSecEvents = enableSecurity ? 1 : 0;
+            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents);
+            Assert.Equal(expectedAppSecEvents, appSecEvents.Count);
+            mockTracerAgentAppSecWrapper.UnsubscribeAppSecEvents();
         }
     }
 }
