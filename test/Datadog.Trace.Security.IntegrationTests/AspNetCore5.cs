@@ -24,11 +24,13 @@ namespace Datadog.Trace.Security.IntegrationTests
         [InlineData(false, HttpStatusCode.OK)]
         public async Task TestBlockedRequestAsync(bool enableSecurity, HttpStatusCode expectedStatusCode)
         {
+            var test = expectedStatusCode;
             using var agent = await RunOnSelfHosted(enableSecurity);
             var mockTracerAgentAppSecWrapper = new MockTracerAgentAppSecWrapper(agent);
             mockTracerAgentAppSecWrapper.SubscribeAppSecEvents();
-            var (statusCode, _) = await SubmitRequest("/Home?arg=[$slice]");
-            Assert.Equal(expectedStatusCode, statusCode);
+            await Task.WhenAll(SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"));
+            // var (statusCode, _) = await SubmitRequest("/Home?arg=[$slice]");
+            // Assert.Equal(expectedStatusCode, statusCode);
             var spans = agent.WaitForSpans(2, returnAllOperations: true);
             Assert.Equal(2, spans.Count);
             foreach (var span in spans)
@@ -38,8 +40,8 @@ namespace Datadog.Trace.Security.IntegrationTests
                 Assert.Equal("web", span.Type);
             }
 
-            var expectedAppSecEvents = enableSecurity ? 1 : 0;
-            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents);
+            var expectedAppSecEvents = enableSecurity ? 2 : 0;
+            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents, 20000);
             Assert.Equal(expectedAppSecEvents, appSecEvents.Count);
             mockTracerAgentAppSecWrapper.UnsubscribeAppSecEvents();
         }

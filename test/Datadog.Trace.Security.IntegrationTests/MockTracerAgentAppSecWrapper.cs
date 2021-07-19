@@ -11,13 +11,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Datadog.Trace.AppSec.EventModel.Batch;
-using Datadog.Trace.Security.IntegrationTests.DeserializeModels;
 using Datadog.Trace.TestHelpers;
 using Datadog.Trace.Vendors.Newtonsoft.Json;
 
 namespace Datadog.Trace.Security.IntegrationTests
 {
-    internal  class MockTracerAgentAppSecWrapper
+    internal class MockTracerAgentAppSecWrapper
     {
         private readonly MockTracerAgent agent;
 
@@ -38,7 +37,7 @@ namespace Datadog.Trace.Security.IntegrationTests
             while (DateTime.Now < deadline)
             {
                 events = Intakes.ToImmutableList();
-                if (events.Count >= count)
+                if (events.Any() && events[0].Events.Count() >= count)
                 {
                     break;
                 }
@@ -66,7 +65,7 @@ namespace Datadog.Trace.Security.IntegrationTests
             {
                 var sr = new StreamReader(ctx.Value.Request.InputStream);
                 string content = sr.ReadToEnd();
-                var intake = JsonConvert.DeserializeObject<DeserializeModels.Attack.Intake>(content, new IntakeConverter());
+                var intake = JsonConvert.DeserializeObject<Intake>(content, new IntakeConverter());
                 Intakes.Add(intake);
             }
         }

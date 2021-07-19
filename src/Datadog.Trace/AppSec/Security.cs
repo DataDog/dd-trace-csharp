@@ -114,7 +114,7 @@ namespace Datadog.Trace.AppSec
             using var wafResult = additiveContext.Run(args);
             if (wafResult.ReturnCode == ReturnCode.Monitor || wafResult.ReturnCode == ReturnCode.Block)
             {
-                Log.Warning($"Attack detetected! Action: {wafResult.ReturnCode} " + string.Join(", ", args.Select(x => $"{x.Key}: {x.Value}")));
+                Log.Warning($"Attack detected! Action: {wafResult.ReturnCode} " + string.Join(", ", args.Select(x => $"{x.Key}: {x.Value}")));
                 var managedWafResult = Waf.ReturnTypes.Managed.Return.From(wafResult);
                 if (wafResult.ReturnCode == ReturnCode.Block)
                 {
