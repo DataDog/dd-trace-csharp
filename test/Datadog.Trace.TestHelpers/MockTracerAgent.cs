@@ -99,11 +99,6 @@ namespace Datadog.Trace.TestHelpers
         public event EventHandler<EventArgs<IList<IList<Span>>>> RequestDeserialized;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to skip serialization of traces.
-        /// </summary>
-        public bool ShouldDeserializeTraces { get; set; } = true;
-
-        /// <summary>
         /// Gets the TCP port that this Agent is listening on.
         /// Can be different from <see cref="MockTracerAgent(int, int)"/>'s <c>initialPort</c>
         /// parameter if listening on that port fails.
@@ -125,6 +120,13 @@ namespace Datadog.Trace.TestHelpers
         public IImmutableList<NameValueCollection> RequestHeaders { get; private set; } = ImmutableList<NameValueCollection>.Empty;
 
         public ConcurrentQueue<string> StatsdRequests { get; } = new ConcurrentQueue<string>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip deserialization of traces.
+        /// </summary>
+        /// <param name="context">context</param>
+        /// <returns>should deserialize traces if they are spans and not other types of events</returns>
+        public bool ShouldDeserializeTraces(HttpListenerContext context) => context.Request.Headers[AppSec.Transports.Sender.AppSecHeaderKey] == null;
 
         /// <summary>
         /// Wait for the given number of spans to appear.
@@ -171,7 +173,7 @@ namespace Datadog.Trace.TestHelpers
                     "X-Datadog-Trace-Count",
                     header =>
                     {
-                        if (int.TryParse(header, out int traceCount))
+                        if (int.TryParse(header, out var traceCount))
                         {
                             return traceCount >= 0;
                         }
@@ -253,8 +255,7 @@ namespace Datadog.Trace.TestHelpers
                 {
                     var ctx = _listener.GetContext();
                     OnRequestReceived(ctx);
-
-                    if (ShouldDeserializeTraces)
+                    if (ShouldDeserializeTraces(ctx))
                     {
                         var spans = MessagePackSerializer.Deserialize<IList<IList<Span>>>(ctx.Request.InputStream);
                         OnRequestDeserialized(spans);

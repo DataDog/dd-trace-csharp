@@ -5,6 +5,8 @@
 
 #if NET5_0
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -24,15 +26,14 @@ namespace Datadog.Trace.Security.IntegrationTests
         [InlineData(false, HttpStatusCode.OK)]
         public async Task TestBlockedRequestAsync(bool enableSecurity, HttpStatusCode expectedStatusCode)
         {
-            var test = expectedStatusCode;
             using var agent = await RunOnSelfHosted(enableSecurity);
             var mockTracerAgentAppSecWrapper = new MockTracerAgentAppSecWrapper(agent);
             mockTracerAgentAppSecWrapper.SubscribeAppSecEvents();
-            await Task.WhenAll(SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"), SubmitRequest("/Home?arg=[$slice]"));
-            // var (statusCode, _) = await SubmitRequest("/Home?arg=[$slice]");
-            // Assert.Equal(expectedStatusCode, statusCode);
-            var spans = agent.WaitForSpans(2, returnAllOperations: true);
-            Assert.Equal(2, spans.Count);
+            Func<Task<(HttpStatusCode StatusCode, string ResponseText)>> attack = () => SubmitRequest("?arg=[$slice]");
+            var resultRequests = await Task.WhenAll(attack(), attack(), attack(), attack(), attack());
+            var expectedSpans = 6; // one more because runselfhosted pings once
+            var spans = agent.WaitForSpans(expectedSpans);
+            Assert.Equal(expectedSpans, spans.Count);
             foreach (var span in spans)
             {
                 Assert.Equal("aspnet_core.request", span.Name);
@@ -40,9 +41,24 @@ namespace Datadog.Trace.Security.IntegrationTests
                 Assert.Equal("web", span.Type);
             }
 
-            var expectedAppSecEvents = enableSecurity ? 2 : 0;
-            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents, 20000);
+            var expectedAppSecEvents = enableSecurity ? 5 : 0;
+            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents);
             Assert.Equal(expectedAppSecEvents, appSecEvents.Count);
+            Assert.All(resultRequests, r => Assert.Equal(r.StatusCode, expectedStatusCode));
+            var spanIds = spans.Select(s => s.SpanId);
+            var usedIds = new List<ulong>();
+            foreach (var item in appSecEvents)
+            {
+                Assert.IsType<AppSec.EventModel.Attack>(item);
+                var attackEvent = (AppSec.EventModel.Attack)item;
+                Assert.True(attackEvent.Blocked);
+                var spanId = spanIds.FirstOrDefault(s => s == attackEvent.Context.Span.Id);
+                Assert.NotEqual(0m, spanId);
+                Assert.DoesNotContain(spanId, usedIds);
+                Assert.Equal("nosql_injection-monitoring", attackEvent.Rule.Name);
+                usedIds.Add(spanId);
+            }
+
             mockTracerAgentAppSecWrapper.UnsubscribeAppSecEvents();
         }
     }

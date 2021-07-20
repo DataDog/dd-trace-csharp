@@ -14,7 +14,8 @@ namespace Datadog.Trace.AppSec.Transports
 {
     internal class Sender
     {
-        private const string XApiVersion = "v0.1.0";
+        internal const string AppSecHeaderValue = "v0.1.0";
+        internal const string AppSecHeaderKey = "X-Api-Version";
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly Uri _uri;
 
@@ -34,7 +35,7 @@ namespace Datadog.Trace.AppSec.Transports
                 IdemPotencyKey = Guid.NewGuid().ToString()
             };
             var request = _apiRequestFactory.Create(_uri);
-            request.AddHeader("X-Api-Version", XApiVersion);
+            request.AddHeader(AppSecHeaderKey, AppSecHeaderValue);
             return request.PostAsJsonAsync(batch);
         }
     }

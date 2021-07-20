@@ -10,6 +10,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Datadog.Trace.Abstractions;
 using Datadog.Trace.AppSec.EventModel.Batch;
 using Datadog.Trace.TestHelpers;
 using Datadog.Trace.Vendors.Newtonsoft.Json;
@@ -19,25 +20,24 @@ namespace Datadog.Trace.Security.IntegrationTests
     internal class MockTracerAgentAppSecWrapper
     {
         private readonly MockTracerAgent agent;
+        private readonly List<IEvent> events;
 
         public MockTracerAgentAppSecWrapper(MockTracerAgent agent)
         {
             this.agent = agent;
-            Intakes = new List<Intake>();
+            events = new List<IEvent>();
         }
 
-        public ICollection<Intake> Intakes { get; private set; }
-
-        internal IImmutableList<Intake> WaitForAppSecEvents(
+        internal IImmutableList<IEvent> WaitForAppSecEvents(
             int count,
             int timeoutInMilliseconds = 20000)
         {
             var deadline = DateTime.Now.AddMilliseconds(timeoutInMilliseconds);
-            IImmutableList<Intake> events = ImmutableList<Intake>.Empty;
+            var events = ImmutableList<IEvent>.Empty;
             while (DateTime.Now < deadline)
             {
-                events = Intakes.ToImmutableList();
-                if (events.Any() && events[0].Events.Count() >= count)
+                events = this.events.ToImmutableList();
+                if (events.Count >= count)
                 {
                     break;
                 }
@@ -66,7 +66,7 @@ namespace Datadog.Trace.Security.IntegrationTests
                 var sr = new StreamReader(ctx.Value.Request.InputStream);
                 string content = sr.ReadToEnd();
                 var intake = JsonConvert.DeserializeObject<Intake>(content, new IntakeConverter());
-                Intakes.Add(intake);
+                events.AddRange(intake.Events);
             }
         }
     }

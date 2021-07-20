@@ -58,7 +58,6 @@ namespace Datadog.Trace.Security.IntegrationTests
         {
             if (process != null && !process.HasExited)
             {
-                Output.WriteLine("Killing process");
                 process.Kill();
                 process.Dispose();
             }
@@ -66,7 +65,8 @@ namespace Datadog.Trace.Security.IntegrationTests
 
         protected async Task<(HttpStatusCode StatusCode, string ResponseText)> SubmitRequest(string path)
         {
-            var response = await httpClient.GetAsync($"http://localhost:{this.httpPort}{path}");
+            Output.WriteLine("submitting request");
+            var response = await httpClient.GetAsync($"http://localhost:{httpPort}{path}");
             var responseText = await response.Content.ReadAsStringAsync();
             return (response.StatusCode, responseText);
         }

@@ -36,7 +36,6 @@ namespace Datadog.Trace.AppSec.Agent
 
         public void AddEvent(IEvent @event)
         {
-            Log.Warning($"add event to {events.Count} events");
             events.Enqueue(@event);
         }
 
@@ -55,7 +54,6 @@ namespace Datadog.Trace.AppSec.Agent
                     while (events.TryDequeue(out var result))
                     {
                         appsecEvents.Add(result);
-                        Log.Warning($"Appsec events are now {appsecEvents.Count}");
                         if (appsecEvents.Count > MaxItemsPerBatch)
                         {
                             break;
