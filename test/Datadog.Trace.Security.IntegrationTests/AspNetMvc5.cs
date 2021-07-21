@@ -5,6 +5,8 @@
 
 #if NET461
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -22,11 +24,15 @@ namespace Datadog.Trace.Security.IntegrationTests
         [Theory]
         [InlineData(true, HttpStatusCode.Forbidden)]
         [InlineData(false, HttpStatusCode.OK)]
-        public async Task TestBlockedRequestAsync(bool enableSecurity, HttpStatusCode expectedStatusCode)
+        public async Task TestSecurity(bool enableSecurity, HttpStatusCode expectedStatusCode)
         {
-            await RunOnIis("/Home", enableSecurity);
-            var (statusCode, _) = await SubmitRequest("/Home?arg=database()");
-            Assert.Equal(expectedStatusCode, statusCode);
+            var agent = await RunOnIis("/Home", enableSecurity);
+            await TestBlockedRequestAsync(agent, enableSecurity, expectedStatusCode, enableSecurity ? 5 : 10, new Action<TestHelpers.MockTracerAgent.Span>[]
+            {
+             s => Assert.Matches("aspnet(-mvc)?.request", s.Name),
+             s => Assert.Equal("Development Web Site", s.Service),
+             s => Assert.Equal("web", s.Type)
+            });
         }
     }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datadog.Core.Tools;
 using Datadog.Trace.TestHelpers;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Datadog.Trace.Security.IntegrationTests
@@ -44,14 +46,15 @@ namespace Datadog.Trace.Security.IntegrationTests
             return agent;
         }
 
-        public Task RunOnIis(string path, bool enableSecurity)
+        public async Task<MockTracerAgent> RunOnIis(string path, bool enableSecurity)
         {
             var initialAgentPort = TcpPortProvider.GetOpenPort();
             var agent = new MockTracerAgent(initialAgentPort);
             httpPort = TcpPortProvider.GetOpenPort();
             var arguments = $"/clr:v4.0 /path:{EnvironmentHelper.GetSampleProjectDirectory()} /systray:false /port:{httpPort} /trace:verbose";
             Output.WriteLine($"[webserver] starting {path} {string.Join(" ", arguments)}");
-            return StartSample(agent.Port, arguments, httpPort, iisExpress: true, enableSecurity: enableSecurity);
+            await StartSample(agent.Port, arguments, httpPort, iisExpress: true, enableSecurity: enableSecurity);
+            return agent;
         }
 
         public void Dispose()
@@ -61,6 +64,44 @@ namespace Datadog.Trace.Security.IntegrationTests
                 process.Kill();
                 process.Dispose();
             }
+        }
+
+        public async Task TestBlockedRequestAsync(MockTracerAgent agent, bool enableSecurity, HttpStatusCode expectedStatusCode, int expectedSpans, IEnumerable<Action<TestHelpers.MockTracerAgent.Span>> assertOnSpans)
+        {
+            var mockTracerAgentAppSecWrapper = new MockTracerAgentAppSecWrapper(agent);
+            mockTracerAgentAppSecWrapper.SubscribeAppSecEvents();
+            Func<Task<(HttpStatusCode StatusCode, string ResponseText)>> attack = () => SubmitRequest("/Health/?arg=[$slice]");
+            var resultRequests = await Task.WhenAll(attack(), attack(), attack(), attack(), attack());
+            agent.SpanFilters.Add(s => s.Tags["http.url"].IndexOf("Health", StringComparison.InvariantCultureIgnoreCase) > 0);
+            var spans = agent.WaitForSpans(5);
+            Assert.Equal(expectedSpans, spans.Count());
+            foreach (var span in spans)
+            {
+                foreach (var assert in assertOnSpans)
+                {
+                    assert(span);
+                }
+            }
+
+            var expectedAppSecEvents = enableSecurity ? 5 : 0;
+            var appSecEvents = mockTracerAgentAppSecWrapper.WaitForAppSecEvents(expectedAppSecEvents);
+            Assert.Equal(expectedAppSecEvents, appSecEvents.Count);
+            Assert.All(resultRequests, r => Assert.Equal(r.StatusCode, expectedStatusCode));
+            var spanIds = spans.Select(s => s.SpanId);
+            var usedIds = new List<ulong>();
+            foreach (var item in appSecEvents)
+            {
+                Assert.IsType<AppSec.EventModel.Attack>(item);
+                var attackEvent = (AppSec.EventModel.Attack)item;
+                Assert.True(attackEvent.Blocked);
+                var spanId = spanIds.FirstOrDefault(s => s == attackEvent.Context.Span.Id);
+                Assert.NotEqual(0m, spanId);
+                Assert.DoesNotContain(spanId, usedIds);
+                Assert.Equal("nosql_injection-monitoring", attackEvent.Rule.Name);
+                usedIds.Add(spanId);
+            }
+
+            mockTracerAgentAppSecWrapper.UnsubscribeAppSecEvents();
         }
 
         protected async Task<(HttpStatusCode StatusCode, string ResponseText)> SubmitRequest(string path)

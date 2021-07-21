@@ -35,7 +35,7 @@ namespace Datadog.Trace.AppSec.Transport.Http
             context.Response.ContentType = "text/html";
             context.Response.Write(SecurityConstants.AttackBlockedHtml);
             context.Response.Flush();
-            context.Response.End();
+            context.ApplicationInstance.CompleteRequest();
         }
 
         public IAdditiveContext GetAdditiveContext()

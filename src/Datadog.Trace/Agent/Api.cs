@@ -68,7 +68,6 @@ namespace Datadog.Trace.Agent
                     return false;
                 }
 
-                Log.Warning($"settings trace count header for {numberOfTraces}");
                 // Set additional headers
                 request.AddHeader(AgentHttpHeaderNames.TraceCount, numberOfTraces.ToString());
 

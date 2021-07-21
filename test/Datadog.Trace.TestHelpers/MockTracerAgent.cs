@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -124,9 +125,7 @@ namespace Datadog.Trace.TestHelpers
         /// <summary>
         /// Gets or sets a value indicating whether to skip deserialization of traces.
         /// </summary>
-        /// <param name="context">context</param>
-        /// <returns>should deserialize traces if they are spans and not other types of events</returns>
-        public bool ShouldDeserializeTraces(HttpListenerContext context) => context.Request.Headers[AppSec.Transports.Sender.AppSecHeaderKey] == null;
+        public bool ShouldDeserializeTraces { get; set; } = true;
 
         /// <summary>
         /// Wait for the given number of spans to appear.
@@ -210,6 +209,8 @@ namespace Datadog.Trace.TestHelpers
             RequestDeserialized?.Invoke(this, new EventArgs<IList<IList<Span>>>(traces));
         }
 
+        private bool IsAppSecTrace(HttpListenerContext context) => context.Request.Headers[AppSec.Transports.Sender.AppSecHeaderKey] != null;
+
         private void AssertHeader(
             NameValueCollection headers,
             string headerKey,
@@ -255,7 +256,8 @@ namespace Datadog.Trace.TestHelpers
                 {
                     var ctx = _listener.GetContext();
                     OnRequestReceived(ctx);
-                    if (ShouldDeserializeTraces(ctx))
+                    var shouldDeserializeTraces = ShouldDeserializeTraces && !IsAppSecTrace(ctx);
+                    if (shouldDeserializeTraces)
                     {
                         var spans = MessagePackSerializer.Deserialize<IList<IList<Span>>>(ctx.Request.InputStream);
                         OnRequestDeserialized(spans);

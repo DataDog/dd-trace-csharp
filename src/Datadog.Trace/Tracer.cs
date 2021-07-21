@@ -414,7 +414,6 @@ namespace Datadog.Trace
 
         internal Scope StartActiveWithTags(string operationName, ISpanContext parent = null, string serviceName = null, DateTimeOffset? startTime = null, bool ignoreActiveScope = false, bool finishOnClose = true, ITags tags = null, ulong? spanId = null)
         {
-            Log.Warning("starting span 417");
             var span = StartSpan(operationName, tags, parent, serviceName, startTime, ignoreActiveScope, spanId);
             return _scopeManager.Activate(span, finishOnClose);
         }
