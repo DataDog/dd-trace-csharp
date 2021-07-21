@@ -1009,7 +1009,6 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
 #endif
             };
 
-
         public static IEnumerable<object[]> CosmosDb =>
 
             new List<object[]>
@@ -1038,6 +1037,31 @@ namespace Datadog.Trace.ClrProfiler.IntegrationTests
                 new object[] { "3.17.1" },
                 new object[] { "3.18.0" },
 #endif
-            };    
+            };
+
+        public static IEnumerable<object[]> Serilog =>
+
+            new List<object[]>
+            {
+#if DEFAULT_SAMPLES
+                new object[] { string.Empty },
+#else
+#if NETFRAMEWORK
+#endif
+                new object[] { "2.0.0" },
+                new object[] { "2.1.0" },
+                new object[] { "2.2.0" },
+                new object[] { "2.2.1" },
+                new object[] { "2.3.0" },
+                new object[] { "2.4.0" },
+                new object[] { "2.5.0" },
+                new object[] { "2.6.0" },
+                new object[] { "2.7.1" },
+                new object[] { "2.8.0" },
+                new object[] { "2.9.0" },
+                new object[] { "2.10.0" },
+#endif
+            };
+
     }
 }
